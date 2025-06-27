@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Live College Bus Tracking</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB81U95GpbKo3AGiYmyOBOxb2hRQg7dfew&callback=initMap" async defer></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "YOUR_FIREBASE_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        var map, marker, routeLine;
+
+        function initMap() {
+            var collegeLocation = { lat: 10.7677, lng: 79.8421 }; // EGS Pillay Engineering College
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 14,
+                center: collegeLocation
+            });
+
+            marker = new google.maps.Marker({
+                position: collegeLocation,
+                map: map,
+                title: "College Bus",
+                icon: "https://img.icons8.com/ios-filled/50/0000FF/bus.png"
+            });
+
+            routeLine = new google.maps.Polyline({
+                strokeColor: "#0000FF",
+                strokeOpacity: 1.0,
+                strokeWeight: 3,
+                map: map
+            });
+
+            database.ref("busLocation").on("value", snapshot => {
+                if (snapshot.exists()) {
+                    const busLocation = snapshot.val();
+                    const updatedPosition = {
+                        lat: busLocation.latitude,
+                        lng: busLocation.longitude
+                    };
+                    marker.setPosition(updatedPosition);
+                    map.setCenter(updatedPosition);
+
+                    routeLine.setPath([updatedPosition, collegeLocation]);
+
+                    document.getElementById("status").innerHTML = "Bus is on the way!";
+                    document.getElementById("lastUpdated").innerHTML = "Last updated: " + new Date(busLocation.timestamp).toLocaleTimeString();
+                }
+            });
+        }
+    </script>
+
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; }
+        #map { height: 400px; width: 100%; }
+        .info-box { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 5px; }
+        button { margin-top: 10px; padding: 10px; border: none; background: #007bff; color: white; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body onload="initMap()">
+    <h3>Live College Bus Tracking</h3>
+    <div id="map"></div>
+    <div class="info-box">
+        <p id="status">Waiting for bus location...</p>
+        <p id="lastUpdated">Last updated: --</p>
+        <button onclick="window.location.reload();">Refresh</button>
+        <button onclick="window.open('https://www.google.com/maps/dir/?api=1&destination=EGS Pillay Engineering College', '_blank')">Get Directions</button>
+    </div>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Driver Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .container {
+            width: 80%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .back-button {
+            background-color: #ff4081;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background-color: #e91e63;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Driver Details</h1>
+        <p id="searchResult"></p>
+        <table id="driversTable">
+            <thead>
+                <tr>
+                    <th>Driver Id</th>
+                    <th>Name</th>
+                    <th>Bus No</th>
+                    <th>Phone Number</th>
+                </tr>
+            </thead>
+            <tbody id="driversList">
+                <!-- Dynamic driver rows will be inserted here -->
+            </tbody>
+        </table>
+
+        <button class="back-button" onclick="window.history.back()">Go Back</button>
+    </div>
+
+    <script>
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const busNo = urlParams.get("busNo");
+
+            if (busNo) {
+                // Display search result header
+                document.getElementById("searchResult").innerText = `Showing driver details for Bus Number: ${busNo}`;
+
+                try {
+                    // Retrieve drivers from localStorage
+                    let drivers = JSON.parse(localStorage.getItem("drivers")) || [];
+                    let driversList = document.getElementById("driversList");
+
+                    // Filter drivers by bus number
+                    let filteredDrivers = drivers.filter(driver => driver.busNo == busNo);
+
+                    if (filteredDrivers.length === 0) {
+                        driversList.innerHTML = "<tr><td colspan='4'>No driver found for this bus number.</td></tr>";
+                    } else {
+                        // Loop through and create rows for each driver found
+                        filteredDrivers.forEach(function(driver) {
+                            let row = document.createElement("tr");
+
+                            let driverId = document.createElement("td");
+                            driverId.innerText = driver.driverId;
+
+                            let name = document.createElement("td");
+                            name.innerText = driver.name;
+
+                            let busNo = document.createElement("td");
+                            busNo.innerText = driver.busNo;
+
+                            let phone = document.createElement("td");
+                            phone.innerText = driver.phone;
+
+                            row.appendChild(driverId);
+                            row.appendChild(name);
+                            row.appendChild(busNo);
+                            row.appendChild(phone);
+
+                            driversList.appendChild(row);
+                        });
+                    }
+                } catch (e) {
+                    console.error("Error retrieving driver data from localStorage", e);
+                    document.getElementById("driversList").innerHTML = "<tr><td colspan='4'>Unable to load driver data.</td></tr>";
+                }
+            } else {
+                alert("Bus number is missing in the URL.");
+            }
+        };
+    </script>
+
+</body>
+</html>

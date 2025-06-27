@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Store Fee Details</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 20px;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 10px;
+      width: 90%;
+      max-width: 300px;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      background-color: #4a90e2;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #357ABD;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Admin - Store Student Fee Details</h2>
+
+<form id="feeForm">
+  <label for="studentName">Student Name:</label><br>
+  <input type="text" id="studentName" placeholder="Enter student name" required><br>
+
+  <label for="balance">Fee Balance:</label><br>
+  <input type="number" id="balance" placeholder="Enter balance" required><br>
+
+  <label for="lastPaymentDate">Last Payment Date:</label><br>
+  <input type="date" id="lastPaymentDate" required><br>
+
+  <button type="button" onclick="storeFeeDetails()">Store Fee Details</button>
+</form>
+
+<script>
+  // Firebase configuration (replace with your actual Firebase config)
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_AUTH_DOMAIN",
+    databaseURL: "YOUR_DATABASE_URL",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_STORAGE_BUCKET",
+    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // Function to store fee details
+  function storeFeeDetails() {
+    const studentName = document.getElementById('studentName').value.trim();
+    const balance = document.getElementById('balance').value;
+    const lastPaymentDate = document.getElementById('lastPaymentDate').value;
+
+    // Validation
+    if (!studentName || !balance || !lastPaymentDate) {
+      alert('Please fill in all fields!');
+      return;
+    }
+
+    // Store fee details in Firebase
+    const studentRef = db.ref('students/' + studentName.toLowerCase() + '/fees');
+    studentRef.set({
+      balance: balance,
+      lastPaymentDate: lastPaymentDate
+    })
+    .then(() => {
+      alert("Fee details stored successfully!");
+      document.getElementById('feeForm').reset();
+    })
+    .catch((error) => {
+      alert("Error storing fee details: " + error.message);
+    });
+  }
+</script>
+
+</body>
+</html>

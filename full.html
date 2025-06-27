@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>College Bus Tracker</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    body { font-family: Arial; text-align: center; padding: 10px; }
+    input, button { padding: 10px; margin: 5px; width: 90%; max-width: 300px; }
+    #map { height: 400px; width: 100%; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+<h2>College Bus Tracker</h2>
+
+<!-- Driver Section -->
+<h3>Driver: Share Location</h3>
+<input type="text" id="driverBusNo" placeholder="Bus Number (e.g. 32)">
+<button onclick="startSharing()">Start Sharing Location</button>
+
+<!-- User Section -->
+<h3>User: Track Bus</h3>
+<input type="text" id="userBusNo" placeholder="Enter Bus Number">
+<button onclick="trackBus()">Track Location</button>
+
+<div id="map"></div>
+
+<script>
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyAWfEx8v3QSoyW8thu3r9vCy_8sCFtDFwo",
+    authDomain: "collegebustrackingapp-8d1ea.firebaseapp.com",
+    databaseURL: "https://collegebustrackingapp-8d1ea-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "collegebustrackingapp-8d1ea",
+    storageBucket: "collegebustrackingapp-8d1ea.appspot.com",
+    messagingSenderId: "1071914027946",
+    appId: "1:1071914027946:web:067263e668f02c6fd279d3",
+    measurementId: "G-7831ZTXW26"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  let map, marker;
+
+  // Driver shares GPS
+  function startSharing() {
+    const busNo = document.getElementById('driverBusNo').value.trim();
+    if (!busNo) return alert("Enter your bus number!");
+
+    alert("Sharing location... make sure GPS is enabled!");
+
+    navigator.geolocation.watchPosition((pos) => {
+      db.ref('buses/' + busNo).set({
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude
+      });
+    }, (err) => {
+      alert("GPS Error: " + err.message);
+    }, { enableHighAccuracy: true });
+  }
+
+  // User tracks GPS
+  function trackBus() {
+    const busNo = document.getElementById('userBusNo').value.trim();
+    if (!busNo) return alert("Enter bus number!");
+
+    db.ref('buses/' + busNo).on('value', (snap) => {
+      const data = snap.val();
+      if (!data) return alert("Bus not found!");
+
+      const latLng = [data.lat, data.lng];
+
+      if (!map) {
+        map = L.map('map').setView(latLng, 16);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        marker = L.marker(latLng).addTo(map).bindPopup("Bus " + busNo).openPopup();
+      } else {
+        marker.setLatLng(latLng).bindPopup("Bus " + busNo).openPopup();
+        map.setView(latLng);
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

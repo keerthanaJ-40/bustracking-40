@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #a1c4fd, #c2e9fb);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 85%;
+            max-width: 900px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        h1 {
+            color: #007bff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .back-button {
+            background-color: #ff4081;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background-color: #e91e63;
+        }
+
+        .delete-button {
+            background-color: #ff6347;
+            color: white;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .delete-button:hover {
+            background-color: #e53e3e;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Driver Details</h1>
+        <table id="driversTable">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Password</th>
+                    <th>Bus No</th>
+                    <th>Phone Number</th>
+                    <th>Route</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody id="driversList">
+                <!-- Dynamic driver rows will be inserted here -->
+            </tbody>
+        </table>
+        <a href="first.html">
+            <button class="back-button">Go Back</button>
+        </a>
+    </div>
+
+    <script>
+        window.onload = function() {
+            try {
+                let drivers = JSON.parse(localStorage.getItem("drivers")) || [];
+                let driversList = document.getElementById("driversList");
+
+                if (drivers.length === 0) {
+                    driversList.innerHTML = "<tr><td colspan='6'>No drivers found.</td></tr>";
+                } else {
+                    drivers.forEach(function(driver, index) {
+                        let row = document.createElement("tr");
+
+                        let name = document.createElement("td");
+                        name.innerText = driver.name;
+
+                        let password = document.createElement("td");
+                        password.innerText = driver.password;
+
+                        let busNo = document.createElement("td");
+                        busNo.innerText = driver.busno;
+
+                        let phone = document.createElement("td");
+                        phone.innerText = driver.phone;
+
+                        let route = document.createElement("td");
+                        route.innerText = driver.route;
+
+                        let deleteCell = document.createElement("td");
+                        let deleteButton = document.createElement("button");
+                        deleteButton.innerText = "Delete";
+                        deleteButton.classList.add("delete-button");
+                        deleteButton.onclick = function () {
+                            deleteDriver(index);
+                        };
+
+                        deleteCell.appendChild(deleteButton);
+
+                        row.appendChild(name);
+                        row.appendChild(password);
+                        row.appendChild(busNo);
+                        row.appendChild(phone);
+                        row.appendChild(route);
+                        row.appendChild(deleteCell);
+
+                        driversList.appendChild(row);
+                    });
+                }
+            } catch (e) {
+                console.error("Error retrieving drivers data from localStorage", e);
+                document.getElementById("driversList").innerHTML = "<tr><td colspan='6'>Unable to load driver data.</td></tr>";
+            }
+        };
+
+        function deleteDriver(index) {
+            let drivers = JSON.parse(localStorage.getItem("drivers")) || [];
+            drivers.splice(index, 1);
+            localStorage.setItem("drivers", JSON.stringify(drivers));
+            window.location.reload();
+        }
+    </script>
+
+</body>
+</html>

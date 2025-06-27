@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Driver by Bus Number</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 60%;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Search Driver by Bus Number</h1>
+        
+        <!-- Search Input -->
+        <input type="text" id="busNumberInput" placeholder="Enter bus number (e.g., 45)">
+        <button onclick="searchDriver()">Search</button>
+
+        <!-- Table for displaying all driver details -->
+        <table id="driversTable">
+            <thead>
+                <tr>
+                    <th>Driver Id</th>
+                    <th>Name</th>
+                    <th>Bus No</th>
+                    <th>Phone Number</th>
+                </tr>
+            </thead>
+            <tbody id="driversList">
+                <!-- All drivers will be listed here -->
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // This will fetch the drivers stored in localStorage
+        
+    window.onload = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const busNo = urlParams.get('busNo');
+
+        const drivers = JSON.parse(localStorage.getItem("drivers")) || [];
+        const filteredDrivers = drivers.filter(driver => driver.busNo === busNo);
+        const tbody = document.getElementById("driversList");
+
+        if (filteredDrivers.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="4">No driver found for Bus No: ${busNo}</td></tr>`;
+        } else {
+            filteredDrivers.forEach(driver => {
+                const row = document.createElement("tr");
+                row.innerHTML = `
+                    <td>${driver.driverId}</td>
+                    <td>${driver.name}</td>
+                    <td>${driver.busNo}</td>
+                    <td>${driver.phone}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+    };
+</script>
+
+</body>
+</html>

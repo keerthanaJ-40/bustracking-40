@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>User: Track Bus Location</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    /* Background Gradient */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 10px;
+      background: linear-gradient(135deg, #ff9a9e, #66a6ff);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* Input and Button Styling */
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      width: 90%;
+      max-width: 300px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+    }
+
+    input {
+      background-color: #f2f2f2;
+      color: #333;
+    }
+
+    button {
+      background-color: #4a90e2;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #357ABD;
+    }
+
+    /* Map Container Styling */
+    #map {
+      height: 400px;
+      width: 100%;
+      margin-top: 20px;
+      border-radius: 10px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<h2>User: Track Bus Location</h2>
+
+<!-- User Section -->
+<input type="text" id="userBusNo" placeholder="Enter Bus Number"><br>
+<button onclick="trackBus()">Track Location</button>
+
+<div id="map"></div>
+
+<script>
+  // Your Firebase config (Ensure this is secured)
+  const firebaseConfig = {
+    apiKey: "AIzaSyAWfEx8v3QSoyW8thu3r9vCy_8sCFtDFwo",
+    authDomain: "collegebustrackingapp-8d1ea.firebaseapp.com",
+    databaseURL: "https://collegebustrackingapp-8d1ea-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "collegebustrackingapp-8d1ea",
+    storageBucket: "collegebustrackingapp-8d1ea.appspot.com",
+    messagingSenderId: "1071914027946",
+    appId: "1:1071914027946:web:067263e668f02c6fd279d3",
+    measurementId: "G-7831ZTXW26"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  let map, marker;
+
+  // User tracks GPS
+  function trackBus() {
+    const busNo = document.getElementById('userBusNo').value.trim();
+    if (!busNo) return alert("Enter bus number!");
+
+    db.ref('buses/' + busNo).on('value', (snap) => {
+      const data = snap.val();
+      if (!data) return alert("Bus not found!");
+
+      const latLng = [data.lat, data.lng];
+
+      if (!map) {
+        map = L.map('map').setView(latLng, 16); // Initialize the map only once
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        marker = L.marker(latLng).addTo(map).bindPopup("Bus " + busNo).openPopup();
+      } else {
+        marker.setLatLng(latLng).bindPopup("Bus " + busNo).openPopup();
+        map.setView(latLng, 18); // Zoom in slightly on the bus
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

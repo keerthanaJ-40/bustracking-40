@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Form</title>
+    <style>
+        body{
+            font-family:Arial,  sans-serif;
+            text-align: center;
+        }
+        .container{
+            width:300px;
+            margin:50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f4f4f4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Student Details</h2>
+        <p><strong>Roll Number :</strong><span id="rollnumber"></span></p>
+        <p><strong>password :</strong><span id="password"></span></p>
+        <p><strong>Name :</strong><span id="name"></span></p>
+        <p><strong>Year :</strong><span id="year"></span></p>
+        <p><strong>Semester :</strong><span id="semester"></span></p>
+    </div>
+    <script>
+        let studentData = localStorage.getItem("studentData");
+        if(studentData){
+            studentData=JSON.parse(studentData);
+            console.log("Loaded Data :",studentData);
+            document.getElementById("rollnumber").textContent=studentData.rollnumber;
+            document.getElementById("password").textContent=studentData.password;
+            document.getElementById("name").textContent=studentData.name;
+            document.getElementById("year").textContent=studentData.year; 
+            document.getElementById("semester").textContent=studentData.semester;
+         
+        }
+        else{
+            document.body.innerHTML="<h2>No Student Data found</h2>";
+        }
+    </script>
+</body>
+</html>

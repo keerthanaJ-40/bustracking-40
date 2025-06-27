@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h2>Student Details</h2>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Roll number</th>
+                <th>Name</th>
+                <th>Year</th>
+                <th>Semester</th>
+            </tr>
+        </thead>
+        <tbody id="studentTable">
+            
+        </tbody>
+    </table>
+    <script>
+window.onload = function() {
+            try {
+                // Retrieve students from localStorage
+                let students = JSON.parse(localStorage.getItem("students")) || [];
+                let studentsList = document.getElementById("studentsList");
+
+                // Check if students exist
+                if (students.length === 0) {
+                    studentsList.innerHTML = "<p>No students found.</p>";
+                } else {
+                    // Loop through and create cards for each student
+                    students.forEach(function(student) {
+                        let studentCard = document.createElement("div");
+                        studentCard.classList.add("student-card");
+
+                        // Create individual elements for student details
+                        let rollNumber = document.createElement("p");
+                        rollNumber.innerHTML = `<strong>Roll Number:</strong> ${student.rollnumber}`;
+
+                        let name = document.createElement("p");
+                        name.innerHTML = `<strong>Name:</strong> ${student.name}`;
+
+                        let year = document.createElement("p");
+                        year.innerHTML = `<strong>Year:</strong> ${student.year}`;
+
+                        let semester = document.createElement("p");
+                        semester.innerHTML = `<strong>Semester:</strong> ${student.semester}`;
+
+                        // Append the student details to the student card
+                        studentCard.appendChild(rollNumber);
+                        studentCard.appendChild(name);
+                        studentCard.appendChild(year);
+                        studentCard.appendChild(semester);
+
+                        // Append the student card to the students list
+                        studentsList.appendChild(studentCard);
+                    });
+                }
+            } catch (e) {
+                // In case of error, log it and display a message
+                console.error("Error retrieving students data from localStorage", e);
+                document.getElementById("studentsList").innerHTML = "<p>Unable to load student data.</p>";
+            }
+        };
+        </script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Driver: Share Bus Location</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    /* Background Gradient */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 10px;
+      background: linear-gradient(135deg, #ff9a9e, #66a6ff);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    /* Input and Button Styling */
+    input, button {
+      padding: 10px;
+      margin: 5px;
+      width: 90%;
+      max-width: 300px;
+      border-radius: 5px;
+      border: none;
+      font-size: 16px;
+    }
+
+    input {
+      background-color: #f2f2f2;
+      color: #333;
+    }
+
+    button {
+      background-color: #4a90e2;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #357ABD;
+    }
+
+    /* Header Styling */
+    h2 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Driver: Share Location</h2>
+
+<!-- Driver Section -->
+<input type="text" id="driverBusNo" placeholder="Bus Number (e.g. 32)"><br>
+<button onclick="startSharing()">Start Sharing Location</button>
+
+<script>
+  // Your Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyAWfEx8v3QSoyW8thu3r9vCy_8sCFtDFwo",
+    authDomain: "collegebustrackingapp-8d1ea.firebaseapp.com",
+    databaseURL: "https://collegebustrackingapp-8d1ea-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "collegebustrackingapp-8d1ea",
+    storageBucket: "collegebustrackingapp-8d1ea.appspot.com",
+    messagingSenderId: "1071914027946",
+    appId: "1:1071914027946:web:067263e668f02c6fd279d3",
+    measurementId: "G-7831ZTXW26"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // Driver shares GPS
+  function startSharing() {
+    const busNo = document.getElementById('driverBusNo').value.trim();
+    if (!busNo) return alert("Enter your bus number!");
+
+    alert("Sharing location... make sure GPS is enabled!");
+
+    navigator.geolocation.watchPosition((pos) => {
+      db.ref('buses/' + busNo).set({
+        lat: pos.coords.latitude,
+        lng: pos.coords.longitude
+      });
+    }, (err) => {
+      alert("GPS Error: " + err.message);
+    }, { enableHighAccuracy: true });
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Fee Details</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 20px;
+    }
+    button {
+      padding: 10px;
+      font-size: 16px;
+      background-color: #4a90e2;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background-color: #357ABD;
+    }
+    .details {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    .detail-item {
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Click to View Fee Details</h2>
+
+<!-- Button to View Fee Details -->
+<button onclick="viewFeeDetails()">View Fee Details</button>
+
+<!-- Div to display fee details -->
+<div class="details" id="feeDetails" style="display: none;">
+  <div class="detail-item">
+    <strong>Fee Balance:</strong> <span id="feeBalance">Loading...</span>
+  </div>
+  <div class="detail-item">
+    <strong>Last Payment Date:</strong> <span id="lastPaymentDate">Loading...</span>
+  </div>
+</div>
+
+<script>
+  // Firebase configuration (replace with your actual Firebase config)
+  const firebaseConfig = {
+    apiKey: "AIzaSyAWfEx8v3QSoyW8thu3r9vCy_8sCFtDFwo", 
+    authDomain: "collegebustrackingapp-8d1ea.firebaseapp.com", 
+    databaseURL: "https://collegebustrackingapp-8d1ea-default-rtdb.asia-southeast1.firebasedatabase.app", 
+    projectId: "collegebustrackingapp-8d1ea", 
+    storageBucket: "collegebustrackingapp-8d1ea.appspot.com", 
+    messagingSenderId: "1071914027946", 
+    appId: "1:1071914027946:web:067263e668f02c6fd279d3", 
+    measurementId: "G-7831ZTXW26"
+  };
+
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // Function to view fee details
+  function viewFeeDetails() {
+    const userId = 'user123';  // Replace with the logged-in user's ID (e.g., from Firebase Authentication)
+
+    // Reference to the user's fee details in Firebase
+    const userRef = db.ref('users/' + userId + '/fees');
+
+    // Get the fee details
+    userRef.once('value', function(snapshot) {
+      const feeData = snapshot.val();
+
+      if (feeData) {
+        // Populate the details in the HTML
+        document.getElementById('feeBalance').innerText = feeData.balance ? feeData.balance : "No balance data available";
+        document.getElementById('lastPaymentDate').innerText = feeData.lastPaymentDate ? feeData.lastPaymentDate : "No payment data available";
+        
+        // Show the fee details section
+        document.getElementById('feeDetails').style.display = 'block';
+      } else {
+        // Handle case where no fee data is available
+        alert("No fee details found for this user.");
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

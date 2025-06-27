@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Location Sharing</title>
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+</head>
+<body>
+    <h2>Driver Location Sharing</h2>
+    <button onclick="startSharing()">Start Sharing</button>
+    <p id="status">Not Sharing</p>
+
+    <script>
+        const socket = io("http://localhost:3000");
+
+        function startSharing() {
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition((position) => {
+                    let latitude = position.coords.latitude;
+                    let longitude = position.coords.longitude;
+
+                    socket.emit("updateLocation", { latitude, longitude });
+                    document.getElementById("status").innerText = `Sharing: ${latitude}, ${longitude}`;
+                });
+            } else {
+                alert("Geolocation not supported!");
+            }
+        }
+    </script>
+</body>
+</html>

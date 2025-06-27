@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Track Bus</title>
+</head>
+<body>
+  <h2>User Dashboard</h2>
+  <input type="text" id="busNumberInput" placeholder="Enter Bus Number to Track" required>
+  <button onclick="startTracking()">Track Bus</button>
+  <p id="status">No location yet...</p>
+  <iframe id="mapFrame" width="600" height="450" style="border:0" allowfullscreen="" loading="lazy"></iframe>
+
+  <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+  <script>
+    const socket = io("http://localhost:3000");
+
+    function startTracking() {
+      const busNumber = document.getElementById("busNumberInput").value.trim();
+      if (!busNumber) return;
+
+      socket.on("locationUpdate", (data) => {
+        if (data.busNumber === busNumber) {
+          document.getElementById("status").innerText = `Bus ${data.busNumber} is at ${data.latitude}, ${data.longitude}`;
+          document.getElementById("mapFrame").src = `https://www.google.com/maps?q=${data.latitude},${data.longitude}&output=embed`;
+        }
+      });
+    }
+  </script>
+</body>
+</html>

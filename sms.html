@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head><title>Bus Tracker</title></head>
+<body>
+    <button onclick="sendLocation()">📤 Send Location</button>
+    <p id="status"></p>
+
+    <script>
+        function sendLocation() {
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const res = await fetch('http://localhost:3000/api/location', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        busId: '42',
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude,
+                    })
+                });
+
+                const data = await res.json();
+                document.getElementById('status').innerText = data.message;
+            });
+        }
+    </script>
+</body>
+</html>

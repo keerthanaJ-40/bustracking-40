@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Student: Track Bus</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: linear-gradient(to right, #56ccf2, #2f80ed);
+      color: #fff;
+      padding: 10px;
+    }
+    #map {
+      height: 400px;
+      margin: 10px 0;
+    }
+    input, button {
+      padding: 8px;
+      margin: 5px;
+      font-size: 16px;
+      width: 80%;
+      max-width: 300px;
+      border: none;
+      border-radius: 5px;
+    }
+    button {
+      background: #fff;
+      color: #2f80ed;
+      font-weight: bold;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Student: Track Bus Live</h2>
+
+<!-- Input Fields -->
+<input type="text" id="busNoInput" placeholder="Enter Bus Number (e.g. 32)">
+<input type="number" id="radiusInput" placeholder="Geofence Radius in Meters" value="300">
+<button onclick="trackBus()">Track Bus & Set Geofence</button>
+
+<!-- Status & Map -->
+<p id="status">Waiting for input...</p>
+<div id="map"></div>
+
+<!-- JavaScript -->
+<script>
+  // ✅ Firebase Configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyAWfEx8v3QSoyW8thu3r9vCy_8sCFtDFwo",
+    authDomain: "collegebustrackingapp-8d1ea.firebaseapp.com",
+    databaseURL: "https://collegebustrackingapp-8d1ea-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "collegebustrackingapp-8d1ea",
+    storageBucket: "collegebustrackingapp-8d1ea.appspot.com",
+    messagingSenderId: "1071914027946",
+    appId: "1:1071914027946:web:067263e668f02c6fd279d3",
+    measurementId: "G-7831ZTXW26"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  // 🗺️ Map Setup
+  let map = L.map('map').setView([20.59, 78.96], 5); // India Center
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+  let busMarker = null;
+  let geofenceCircle = null;
+  let geofenceCenter = null;
+  let radius = 300;
+  let alertShown = false;
+
+  // 🔊 Sound notification
+  const audio = new Audio('https://actions.google.com/sounds/v1/alarms/beep_short.ogg');
+
+  // 🚍 Start tracking function
+  function trackBus() {
+    const busNo = document.getElementById('busNoInput').value.trim();
+    radius = parseFloat(document.getElementById('radiusInput').value);
+
+    if (!busNo) return alert("Enter bus number!");
+
+    db.ref('buses/' + busNo).on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
+
+      const latLng = [data.lat, data.lng];
+
+      if (busMarker) {
+        busMarker.setLatLng(latLng);
+      } else {
+        busMarker = L.marker(latLng).addTo(map).bindPopup("Bus " + busNo);
+        map.setView(latLng, 15);
+      }
+
+      if (!geofenceCenter) {
+        // Set geofence at first location
+        geofenceCenter = L.latLng(latLng[0], latLng[1]);
+        geofenceCircle = L.circle(geofenceCenter, {
+          radius: radius,
+          color: 'red',
+          fillColor: '#f03',
+          fillOpacity: 0.2
+        }).addTo(map);
+        document.getElementById("status").textContent = "Geofence set at bus start point.";
+      }
+
+      const distance = busMarker.getLatLng().distanceTo(geofenceCenter);
+
+      if (distance > radius) {
+        document.getElementById("status").textContent = "🚨 Bus has exited geofence!";
+        if (!alertShown) {
+          alertShown = true;
+          alert("Alert! Bus has left the geofenced area!");
+          audio.play();
+        }
+      } else {
+        document.getElementById("status").textContent = "✅ Bus is within geofence.";
+        alertShown = false;
+      }
+    });
+  }
+</script>
+
+</body>
+</html>

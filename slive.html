@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Driver Location</title>
+    <script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+</head>
+<body>
+    <h2>Live Driver Location</h2>
+    <p id="location">Waiting for location...</p>
+    <iframe id="mapFrame" width="600" height="450" style="border:0" allowfullscreen="" loading="lazy"></iframe>
+
+    <script>
+        const socket = io("http://localhost:3000");
+
+        socket.on("locationUpdate", (data) => {
+            document.getElementById("location").innerText = `Driver Location: ${data.latitude}, ${data.longitude}`;
+            document.getElementById("mapFrame").src = `https://www.google.com/maps?q=${data.latitude},${data.longitude}&output=embed`;
+        });
+    </script>
+</body>
+</html>
